@@ -17,8 +17,14 @@ import javax.swing.ScrollPaneConstants;
 
 public class VPrincipal extends JFrame {
 
-	public static final int ANCHO = 800;
-	public static final int ALTO = 600;
+	public static final String MNTM_CLASES = "Apuntarse a una clase";
+	public static final String MNTM_PERFIL = "Mi Perfil";
+	public static final String MNTM_PISTAS = "Reservar una pista";
+	public static final String MNTM_SALIR = "Salir";
+	public static final String MNTM_INFO = "Más información";
+	
+	public static final int ANCHO = 700;
+	public static final int ALTO = 500;
 	private JScrollPane scrpContenedor;
 	private JMenuItem mntmClases;
 	private JMenuItem mntmReservar;
@@ -45,19 +51,19 @@ public class VPrincipal extends JFrame {
 		JMenu mnOpciones = new JMenu("Opciones");
 		menuBar.add(mnOpciones);
 		
-		mntmClases = new JMenuItem("Apuntarse a clases");
+		mntmClases = new JMenuItem(MNTM_CLASES);
 		mnOpciones.add(mntmClases);
 		
-		mntmReservar = new JMenuItem("Reservar pista");
+		mntmReservar = new JMenuItem(MNTM_PISTAS);
 		mnOpciones.add(mntmReservar);
 		
-		mntmPerfil = new JMenuItem("Mi Perfil");
+		mntmPerfil = new JMenuItem(MNTM_PERFIL);
 		mnOpciones.add(mntmPerfil);
 		
-		mntmInfo = new JMenuItem("Más Información");
+		mntmInfo = new JMenuItem(MNTM_INFO);
 		menuBar.add(mntmInfo);
 		
-		mntmSalir = new JMenuItem("Salir");
+		mntmSalir = new JMenuItem(MNTM_SALIR);
 		menuBar.add(mntmSalir);
 		
 		setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);

@@ -9,7 +9,7 @@ import model.Usuario;
 
 public class PolideportivoPersistencia {
 
-	static final String NOM_TABLA = "USUARIO";
+	static final String TABLA_USUARIO = "USUARIO";
 	static final String COL_DNI = "DNI";
 	static final String COL_PWD = "CONTRASENIA";
 	static final String COL_NOMBRE = "NOMBRE";
@@ -25,7 +25,7 @@ public class PolideportivoPersistencia {
 	}
 	
 	public String verficarUsuario(Usuario usuario) {
-		String query = "SELECT " + COL_DNI + ", " + COL_PWD + " FROM " + NOM_TABLA 
+		String query = "SELECT " + COL_DNI + ", " + COL_PWD + " FROM " + TABLA_USUARIO 
 				+ " WHERE " + COL_DNI + " = ?";
 		
 		String resultado = "";
@@ -78,7 +78,7 @@ public class PolideportivoPersistencia {
 	}
 
 	public int addUsuario(Usuario usuario) {
-		String query = "INSERT INTO " + NOM_TABLA + "(" + COL_DNI + ", " + COL_NOMBRE + ", " + COL_APELLIDOS 
+		String query = "INSERT INTO " + TABLA_USUARIO + "(" + COL_DNI + ", " + COL_NOMBRE + ", " + COL_APELLIDOS 
 				+ ", " + COL_ANIO + ", " + COL_TELEFONO + ", " + COL_EMAIL + ", " + COL_PWD + ") VALUES (?, ?, ?, ?, ?, ?, ?)";
 		
 		Connection con = null;
