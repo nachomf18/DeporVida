@@ -24,7 +24,7 @@ public class VPrincipal extends JFrame {
 	public static final String MNTM_INFO = "Más información";
 	
 	public static final int ANCHO = 700;
-	public static final int ALTO = 500;
+	public static final int ALTO = 550;
 	private JScrollPane scrpContenedor;
 	private JMenuItem mntmClases;
 	private JMenuItem mntmReservar;

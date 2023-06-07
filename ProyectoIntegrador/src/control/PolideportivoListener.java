@@ -11,6 +11,7 @@ import db.PolideportivoPersistencia;
 import model.Clase;
 import model.Usuario;
 import view.PClases;
+import view.PMiPerfil;
 import view.VLogin;
 import view.VPrincipal;
 import view.VRegistrar;
@@ -21,14 +22,16 @@ public class PolideportivoListener implements ActionListener {
 	private VPrincipal vPrincipal;
 	private VRegistrar vRegistrar;
 	private PClases pClases;
+	private PMiPerfil pMiPerfil;
 	private PolideportivoPersistencia pPers;
 	private Usuario usuario;
 	
-	public PolideportivoListener(VLogin vLogin, VPrincipal vPrincipal, VRegistrar vRegistrar, PClases pClases) {
+	public PolideportivoListener(VLogin vLogin, VPrincipal vPrincipal, VRegistrar vRegistrar, PClases pClases, PMiPerfil pMiPerfil) {
 		this.vLogin = vLogin;
 		this.vPrincipal = vPrincipal;
 		this.vRegistrar = vRegistrar;
 		this.pClases = pClases;
+		this.pMiPerfil = pMiPerfil;
 		pPers = new PolideportivoPersistencia();
 	}
 
@@ -37,6 +40,8 @@ public class PolideportivoListener implements ActionListener {
 		if (e.getSource() instanceof JMenuItem) {
 			if(e.getActionCommand().equals(VPrincipal.MNTM_CLASES)) {
 				vPrincipal.cargarPanel(pClases);
+			}else if(e.getActionCommand().equals(VPrincipal.MNTM_PERFIL)) {
+				vPrincipal.cargarPanel(pMiPerfil);
 			}
 		}else if (e.getSource() instanceof JButton) {
 			if(e.getActionCommand().equals("Acceder")) {
