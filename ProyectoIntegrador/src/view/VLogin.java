@@ -10,12 +10,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 import javax.swing.WindowConstants;
-
 import control.PolideportivoListener;
 import model.Usuario;
-
 import javax.swing.SwingConstants;
-import javax.swing.JSeparator;
 
 public class VLogin extends JFrame {
 	/**

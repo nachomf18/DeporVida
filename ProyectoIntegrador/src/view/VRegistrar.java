@@ -2,28 +2,19 @@ package view;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
-
 import control.PolideportivoListener;
-import db.PolideportivoPersistencia;
 import model.Usuario;
-
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-
 import java.awt.Font;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.JSpinner;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
-import java.awt.event.ActionListener;
-import java.awt.event.ActionEvent;
 import java.awt.Color;
-import javax.swing.JFormattedTextField;
 
 public class VRegistrar extends JFrame {
 	

@@ -4,9 +4,7 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
-
 import control.PolideportivoListener;
-
 import javax.swing.JMenuBar;
 import java.awt.BorderLayout;
 import javax.swing.JMenu;

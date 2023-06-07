@@ -6,6 +6,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import model.Clase;
+import model.Pista;
 import model.Usuario;
 
 public class PolideportivoPersistencia {
@@ -26,6 +27,9 @@ public class PolideportivoPersistencia {
 	static final String COL_HORA_DESDE = "HORA_DESDE";
 	static final String COL_HORA_HASTA = "HORA_HASTA";
 	static final String TABLA_USUARIO_CLASE = "USUARIO_CLASE";
+	static final String TABLA_PISTA = "PISTA";
+	static final String TABLA_USUARIO_PISTA = "USUARIO_PISTA";
+	static final String COL_FECHA = "FECHA";
 	
 	private AccesoDB acceso;
 
@@ -192,5 +196,135 @@ public class PolideportivoPersistencia {
 		}
 		
 		return res;
+	}
+
+	public ArrayList<Pista> filtrarPista(String deporte) {
+		ArrayList<Pista> listaPistas = new ArrayList<>();
+		
+		String query = "SELECT " + COL_NOMBRE + ", " + COL_DEPORTE + " FROM " + TABLA_PISTA;
+		
+		if(!deporte.equals("Todos")) {
+			query += " WHERE " + COL_DEPORTE + " = ?";
+		}
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rslt = null;
+
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			if(!deporte.equals("Todos")) {
+				stmt.setString(1, deporte);
+			}
+					
+			rslt = stmt.executeQuery();
+			
+			while(rslt.next()) {
+				listaPistas.add(new Pista(rslt.getString(COL_NOMBRE), rslt.getString(COL_DEPORTE)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				
+				if(rslt != null) {
+					rslt.close();
+				}
+				
+				if (stmt != null) {
+					stmt.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return listaPistas;
+	}
+
+	public int addUsuarioPista(String nombre, String dni, String fecha, String hora) {
+		String query = "INSERT INTO " + TABLA_USUARIO_PISTA + "(" + COL_DNI + ", " + COL_NOMBRE + ", " + COL_FECHA 
+				+ ", " + COL_HORA_DESDE + ", " + COL_HORA_HASTA + ") VALUES (?, ?, ?, ?, ?)";
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		int res = 0;
+		
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			stmt.setString(1, dni);
+			stmt.setString(2, nombre);
+			stmt.setString(3, fecha);
+			stmt.setString(4, hora.split(" - ")[0]);
+			stmt.setString(5, hora.split(" - ")[1]);
+			
+			res = stmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			res = -1;
+		}
+		
+		return res;
+	}
+
+	public String comprobarReserva(String nombre, String fecha, String hora) {
+		String query = "SELECT " + COL_NOMBRE+ ", " + COL_FECHA + ", " + COL_HORA_DESDE + ", " + COL_HORA_HASTA 
+				+ " FROM " + TABLA_USUARIO_PISTA 
+				+ " WHERE " + COL_NOMBRE + " = ? AND " + COL_FECHA  + " = ? AND " + COL_HORA_DESDE + " = ? AND " 
+				+ COL_HORA_HASTA + " = ?";
+		
+		String resultado = "";
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rslt = null;
+		
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			stmt.setString(1, nombre);
+			stmt.setString(2, fecha);
+			stmt.setString(3, hora.split(" - ")[0]);
+			stmt.setString(4, hora.split(" - ")[1]);
+			
+			rslt = stmt.executeQuery();
+			
+			if (rslt.next()) {
+				resultado = "Está pistada ya está reservada";
+			} else {
+				resultado = "Pista reservada con éxito";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			resultado = "Se ha producido un error, póngase en contacto con el administrador";
+		} finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				
+				if(rslt != null) {
+					rslt.close();
+				}
+				
+				if (stmt != null) {
+					stmt.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		return resultado;
 	}
 }

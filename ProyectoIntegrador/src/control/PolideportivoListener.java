@@ -3,15 +3,16 @@ package control;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import db.PolideportivoPersistencia;
 import model.Clase;
+import model.Pista;
 import model.Usuario;
 import view.PClases;
 import view.PMiPerfil;
+import view.PPistas;
 import view.VLogin;
 import view.VPrincipal;
 import view.VRegistrar;
@@ -22,15 +23,17 @@ public class PolideportivoListener implements ActionListener {
 	private VPrincipal vPrincipal;
 	private VRegistrar vRegistrar;
 	private PClases pClases;
+	private PPistas pPistas;
 	private PMiPerfil pMiPerfil;
 	private PolideportivoPersistencia pPers;
 	private Usuario usuario;
 	
-	public PolideportivoListener(VLogin vLogin, VPrincipal vPrincipal, VRegistrar vRegistrar, PClases pClases, PMiPerfil pMiPerfil) {
+	public PolideportivoListener(VLogin vLogin, VPrincipal vPrincipal, VRegistrar vRegistrar, PClases pClases, PPistas pPistas, PMiPerfil pMiPerfil) {
 		this.vLogin = vLogin;
 		this.vPrincipal = vPrincipal;
 		this.vRegistrar = vRegistrar;
 		this.pClases = pClases;
+		this.pPistas = pPistas;
 		this.pMiPerfil = pMiPerfil;
 		pPers = new PolideportivoPersistencia();
 	}
@@ -42,6 +45,10 @@ public class PolideportivoListener implements ActionListener {
 				vPrincipal.cargarPanel(pClases);
 			}else if(e.getActionCommand().equals(VPrincipal.MNTM_PERFIL)) {
 				vPrincipal.cargarPanel(pMiPerfil);
+			}else if(e.getActionCommand().equals(VPrincipal.MNTM_PISTAS)) {
+				vPrincipal.cargarPanel(pPistas);
+			}else if(e.getActionCommand().equals(VPrincipal.MNTM_SALIR)) {
+				System.exit(0);
 			}
 		}else if (e.getSource() instanceof JButton) {
 			if(e.getActionCommand().equals("Acceder")) {
@@ -58,7 +65,47 @@ public class PolideportivoListener implements ActionListener {
 				mostrarClases();
 			}else if(e.getActionCommand().equals("Apúntate")) {
 				apuntarseClase();
+			}else if(e.getActionCommand().equals("Mostrar Pistas")) {
+				mostrarPistas();
+			}else if(e.getActionCommand().equals("Reserva")) {
+				reservarPista();
 			}
+		}
+	}
+
+	private void reservarPista() {
+		String fecha = pPistas.obtenerFecha();
+		String hora = pPistas.obtenerHora();
+		int pos = pPistas.obtenerElementoSeleccionado();
+		
+		if (pos == -1) {
+			pPistas.mostrarMensaje("Debe seleccionar una pista para poder reservarla", "Error de selección", JOptionPane.ERROR_MESSAGE);
+		}else {
+			String nombre = pPistas.getNombreFila(pos);
+			
+			String resultado = pPers.comprobarReserva(nombre, fecha, hora);
+			
+			if(resultado.equals("Pista reservada con éxito")) {
+				pPers.addUsuarioPista(nombre, usuario.getDni(), fecha, hora);
+		
+				pClases.mostrarMensaje(resultado, "Resultado de Operación", JOptionPane.INFORMATION_MESSAGE);
+			}else {
+				pPistas.mostrarMensaje(resultado, "Resultado de Operación", JOptionPane.INFORMATION_MESSAGE);
+			}	
+		}
+	}
+
+	private void mostrarPistas() {
+		String deporte = pPistas.obtenerDeporte();
+		
+		ArrayList<Pista> listaPistas = pPers.filtrarPista(deporte);
+		
+		if(listaPistas.isEmpty()) {
+			pPistas.mostrarTabla(false);
+			pPistas.mostrarMensaje("No se han encontrado datos para el deporte seleccionado", "Resultado de Operación", JOptionPane.INFORMATION_MESSAGE);
+		}else {
+			pPistas.mostrarTabla(true);
+			pPistas.rellenarTabla(listaPistas);
 		}
 	}
 
