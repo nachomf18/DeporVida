@@ -7,6 +7,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
+import org.sqlite.SQLiteConfig;
+
 public class AccesoDB {
 
 	private String driver;
@@ -30,7 +32,11 @@ public class AccesoDB {
 	
 	public Connection getConexion() throws ClassNotFoundException, SQLException {
 		Class.forName(driver);
-		Connection con = DriverManager.getConnection(url);
+		
+		SQLiteConfig config = new SQLiteConfig();
+		config.enforceForeignKeys(true);
+		
+		Connection con = DriverManager.getConnection(url, config.toProperties());
 		
 		return con;
 	}

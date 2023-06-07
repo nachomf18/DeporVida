@@ -4,7 +4,8 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-
+import java.util.ArrayList;
+import model.Clase;
 import model.Usuario;
 
 public class PolideportivoPersistencia {
@@ -17,6 +18,14 @@ public class PolideportivoPersistencia {
 	static final String COL_EMAIL = "EMAIL";
 	static final String COL_TELEFONO = "TELEFONO";
 	static final String COL_ANIO = "ANIO_NAC";
+	static final String TABLA_CLASE = "CLASE";
+	static final String COL_DESCRIPCION = "DESCRIPCION";
+	static final String COL_DEPORTE = "DEPORTE";
+	static final String COL_DIA1 = "DIA_1";
+	static final String COL_DIA2 = "DIA_2";
+	static final String COL_HORA_DESDE = "HORA_DESDE";
+	static final String COL_HORA_HASTA = "HORA_HASTA";
+	static final String TABLA_USUARIO_CLASE = "USUARIO_CLASE";
 	
 	private AccesoDB acceso;
 
@@ -96,6 +105,84 @@ public class PolideportivoPersistencia {
 			stmt.setString(5, usuario.getTelefono());
 			stmt.setString(6, usuario.getEmail());
 			stmt.setString(7, usuario.getContrasenia());
+			
+			res = stmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			res = -1;
+		}
+		
+		return res;
+	}
+
+	public ArrayList<Clase> filtrarClase(String deporte) {
+		ArrayList<Clase> listaClases = new ArrayList<>();
+		
+		String query = "SELECT " + COL_NOMBRE + ", " + COL_DESCRIPCION + ", " 
+		+ COL_DEPORTE + ", " + COL_DIA1 + ", " + COL_DIA2 + ", " + COL_HORA_DESDE + ", " + COL_HORA_HASTA 
+		+ " FROM " + TABLA_CLASE;
+		
+		if(!deporte.equals("Todos")) {
+			query += " WHERE " + COL_DEPORTE + " = ?";
+		}
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rslt = null;
+
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			if(!deporte.equals("Todos")) {
+				stmt.setString(1, deporte);
+			}
+					
+			rslt = stmt.executeQuery();
+			
+			while(rslt.next()) {
+				listaClases.add(new Clase(rslt.getString(COL_NOMBRE),  rslt.getString(COL_DESCRIPCION), 
+						rslt.getString(COL_DEPORTE), rslt.getString(COL_DIA1), rslt.getString(COL_DIA2), 
+						rslt.getString(COL_HORA_DESDE), rslt.getString(COL_HORA_HASTA)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				
+				if(rslt != null) {
+					rslt.close();
+				}
+				
+				if (stmt != null) {
+					stmt.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return listaClases;
+	}
+
+	public int addUsuarioClase(String nombre, String dni) {
+		String query = "INSERT INTO " + TABLA_USUARIO_CLASE + "(" + COL_DNI + ", " + COL_NOMBRE + ") VALUES (?, ?)";
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		int res = 0;
+		
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			stmt.setString(1, dni);
+			stmt.setString(2, nombre);
 			
 			res = stmt.executeUpdate();
 			

@@ -101,7 +101,7 @@ public class VLogin extends JFrame {
 	public Usuario obtenerDatos() {
 		Usuario usuario = null;
 			
-		String dni = txtDni.getText().trim();
+		String dni = txtDni.getText().trim().toUpperCase();
 			
 		if(dni.isEmpty()) {
 			mostrarMensaje("Debe introducir el usuario", "Error de Acceso", JOptionPane.INFORMATION_MESSAGE);

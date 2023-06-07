@@ -23,6 +23,7 @@ import javax.swing.JButton;
 import java.awt.event.ActionListener;
 import java.awt.event.ActionEvent;
 import java.awt.Color;
+import javax.swing.JFormattedTextField;
 
 public class VRegistrar extends JFrame {
 	
@@ -182,11 +183,11 @@ public class VRegistrar extends JFrame {
 			if (apellidos.isEmpty()) {
 				mostrarMensaje("Debe introducir los apellidos", "Error de datos", JOptionPane.ERROR_MESSAGE);
 			}else {
-				String dni = txtDni.getText();
+				String dni = txtDni.getText().toUpperCase().trim();
 				
 				if (dni.isEmpty()) {
 					mostrarMensaje("Debe introducir su DNI", "Error de datos", JOptionPane.ERROR_MESSAGE);
-				}else if (dni.length() != 9) {
+				}else if (dni.length() != 9 || Character.isLetter(dni.charAt(8)) == false) {
 					mostrarMensaje("El DNI debe contener 9 caracteres (8 dígitos y 1 letra)", "Error de datos", JOptionPane.ERROR_MESSAGE);
 				}else {
 					int anio = (int) spnAnio.getValue();
@@ -194,11 +195,11 @@ public class VRegistrar extends JFrame {
 					if (anio > 2007) {
 						mostrarMensaje("Debe ser mayor de 15 años para registrarse", "Error de datos", JOptionPane.ERROR_MESSAGE);
 					}else {
-						String email = txtEmail.getText();
-						String tlf = txtTlf.getText();
+						String email = txtEmail.getText().trim().toLowerCase();
+						String tlf = txtTlf.getText().trim();
 						
-						String pwd = pwdPwd.getText();
-						String pwd2 = pwdConfirm.getText();
+						String pwd = pwdPwd.getText().trim();
+						String pwd2 = pwdConfirm.getText().trim();
 						
 						if (pwd.isEmpty()) {
 							mostrarMensaje("Debe introducir la contraseña", "Error de datos", JOptionPane.ERROR_MESSAGE);

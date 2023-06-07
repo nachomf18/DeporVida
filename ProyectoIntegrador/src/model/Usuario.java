@@ -48,7 +48,4 @@ public class Usuario {
 	public String getContrasenia() {
 		return contrasenia;
 	}
-	
-	
-	
 }
