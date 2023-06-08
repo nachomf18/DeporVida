@@ -2,6 +2,10 @@ package control;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import javax.swing.JButton;
 import javax.swing.JMenuItem;
@@ -45,6 +49,7 @@ public class PolideportivoListener implements ActionListener {
 				vPrincipal.cargarPanel(pClases);
 			}else if(e.getActionCommand().equals(VPrincipal.MNTM_PERFIL)) {
 				vPrincipal.cargarPanel(pMiPerfil);
+				cargarDatosPerfil();
 			}else if(e.getActionCommand().equals(VPrincipal.MNTM_PISTAS)) {
 				vPrincipal.cargarPanel(pPistas);
 			}else if(e.getActionCommand().equals(VPrincipal.MNTM_SALIR)) {
@@ -69,6 +74,95 @@ public class PolideportivoListener implements ActionListener {
 				mostrarPistas();
 			}else if(e.getActionCommand().equals("Reserva")) {
 				reservarPista();
+			}else if(e.getActionCommand().equals("Modificar")) {
+				modPwd();
+			}else if(e.getActionCommand().equals("Desapuntarse")) {
+				desapuntarClase();
+			}else if(e.getActionCommand().equals("Cancelar reserva") || e.getActionCommand().equals("Ya he terminado")) {
+				eliminarReserva(e);
+			}
+		}
+	}
+
+	private void eliminarReserva(ActionEvent e) {
+		String mensaje = "";
+		
+		if(e.getActionCommand().equals("Cancelar reserva")) {
+			mensaje = "¿Quiere cancelar la reserva?";
+		}else if (e.getActionCommand().equals("Ya he terminado")) {
+			mensaje = "¿Ha terminado ya de usar la pista?";
+		}
+		
+		int pos = pMiPerfil.obtenerElementoSeleccionadoReservas();
+		
+		if (pos == -1) {
+			pMiPerfil.mostrarMensaje("Debe seleccionar la reserva que quiere cancelar o que ha terminado", "Error de selección", JOptionPane.ERROR_MESSAGE);
+		}else {
+			int opcion = JOptionPane.showConfirmDialog(null, mensaje, "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.INFORMATION_MESSAGE);
+			
+			if (opcion == JOptionPane.YES_OPTION) {
+				String nombre = pMiPerfil.getNombreFilaReservas(pos);
+				
+				int res = pPers.eliminarReserva(nombre);
+				
+				if (res == -1) {
+					pMiPerfil.mostrarMensaje("Ha habido un error eliminando la reserva", "Resultado de Operación", JOptionPane.ERROR_MESSAGE);
+				}else {
+					pMiPerfil.eliminarFilaReservas(pos);
+					pMiPerfil.mostrarMensaje("Se ha quitado la reserva con éxito", "Resultado de Operación", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		}
+	}
+
+	private void desapuntarClase() {
+		int pos = pMiPerfil.obtenerElementoSeleccionadoClases();
+		
+		if (pos == -1) {
+			pMiPerfil.mostrarMensaje("Debe seleccionar la clase de la que se quiere desapuntar", "Error de selección", JOptionPane.ERROR_MESSAGE);
+		}else {
+			int opcion = JOptionPane.showConfirmDialog(null, "Se va a desapuntar de una clase, ¿desea continuar?", "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			
+			if (opcion == JOptionPane.YES_OPTION) {
+				String nombre = pMiPerfil.getNombreFilaClases(pos);
+				
+				int res = pPers.eliminarClase(nombre);
+				
+				if (res == -1) {
+					pMiPerfil.mostrarMensaje("Ha habido un error desapuntándole de la clase", "Resultado de Operación", JOptionPane.ERROR_MESSAGE);
+				}else {
+					pMiPerfil.eliminarFilaClases(pos);
+					pMiPerfil.mostrarMensaje("Se ha desapuntado de la clase con éxito", "Resultado de Operación", JOptionPane.INFORMATION_MESSAGE);
+				}
+			}
+		}
+	}
+
+	private void cargarDatosPerfil() {
+		Usuario datosUsuario = pPers.selectDatosUsuario(usuario.getDni());
+		pMiPerfil.cargarDatos(datosUsuario);
+		
+		ArrayList<Clase> listaClasesUsuario = pPers.selectUsuarioClases(usuario.getDni());
+		pMiPerfil.rellenarTablaClases(listaClasesUsuario);
+		
+		ArrayList<Pista> listaPistasUsuario = pPers.selectUsuarioPista(usuario.getDni());
+		pMiPerfil.rellenarTablaPistas(listaPistasUsuario);
+	}
+
+	private void modPwd() {
+		String newPwd = pMiPerfil.obtenerPwd();
+		
+		if(newPwd != null) {
+			int opcion = JOptionPane.showConfirmDialog(null, "Va a modificar su contraseña, ¿desea continuar?", "Confirmación", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+			
+			if (opcion == JOptionPane.YES_OPTION) {
+				int res = pPers.modPassword(newPwd, usuario.getDni());
+				
+				if(res == -1) {
+					pMiPerfil.mostrarMensaje("Se ha producido un error, contacte con el administrador", "Resultado de modificación", JOptionPane.ERROR_MESSAGE);
+				}else {
+					pMiPerfil.mostrarMensaje("La contraseña se ha modificado correctamente", "Resultado de modificación", JOptionPane.INFORMATION_MESSAGE);
+				}
 			}
 		}
 	}
@@ -170,7 +264,7 @@ public class PolideportivoListener implements ActionListener {
 		usuario = vLogin.obtenerDatos();
 		
 		if (usuario != null) {
-			String resultado = pPers.verficarUsuario(usuario);
+			String resultado = pPers.verificarUsuario(usuario);
 			
 			if (resultado.equals("Acceso permitido")) {
 				vLogin.dispose();

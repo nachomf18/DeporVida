@@ -3,20 +3,19 @@ package view;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.WindowConstants;
-
+import javax.swing.table.DefaultTableModel;
 import control.PolideportivoListener;
+import model.Clase;
+import model.Pista;
 import model.Usuario;
-import java.awt.Dimension;
-import java.awt.Label;
-import java.awt.Toolkit;
+import java.util.ArrayList;
 import javax.swing.JLabel;
 import java.awt.Font;
 import java.awt.Color;
-import javax.swing.JSpinner;
 import javax.swing.JPasswordField;
 import javax.swing.JButton;
 import javax.swing.JScrollPane;
+import javax.swing.JTable;
 
 public class PMiPerfil extends JPanel {
 	private JTextField txtNombre;
@@ -28,8 +27,13 @@ public class PMiPerfil extends JPanel {
 	private JPasswordField pwdModPwd;
 	private JButton btnModificar;
 	private JButton btnTerminado;
-	private JButton btnCancelarR;
+	private JButton btnCancelar;
 	private JButton btnDesapuntar;
+	private JPasswordField pwdConfirm;
+	private DefaultTableModel dtmReservas;
+	private DefaultTableModel dtmClases;
+	private JTable tblReservas;
+	private JTable tblClases;
 
 	public PMiPerfil() {
 		init();
@@ -130,16 +134,22 @@ public class PMiPerfil extends JPanel {
 		
 		btnModificar = new JButton("Modificar");
 		btnModificar.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnModificar.setBounds(364, 145, 103, 30);
+		btnModificar.setBounds(167, 179, 103, 30);
 		add(btnModificar);
 		
-		JScrollPane scrollPane = new JScrollPane();
-		scrollPane.setBounds(10, 219, 561, 86);
-		add(scrollPane);
+		JScrollPane scrpTablaR = new JScrollPane();
+		scrpTablaR.setBounds(10, 219, 561, 86);
+		add(scrpTablaR);
 		
-		JScrollPane scrollPane_1 = new JScrollPane();
-		scrollPane_1.setBounds(10, 352, 561, 86);
-		add(scrollPane_1);
+		tblReservas = new JTable();
+		scrpTablaR.setViewportView(tblReservas);
+		
+		JScrollPane scrpTablaC = new JScrollPane();
+		scrpTablaC.setBounds(10, 352, 561, 86);
+		add(scrpTablaC);
+		
+		tblClases = new JTable();
+		scrpTablaC.setViewportView(tblClases);
 		
 		JLabel lblListadoR = new JLabel("Tus reservas:");
 		lblListadoR.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -151,10 +161,10 @@ public class PMiPerfil extends JPanel {
 		lblListadoC.setBounds(10, 324, 76, 18);
 		add(lblListadoC);
 		
-		btnCancelarR = new JButton("Cancelar ");
-		btnCancelarR.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnCancelarR.setBounds(468, 312, 103, 30);
-		add(btnCancelarR);
+		btnCancelar = new JButton("Cancelar reserva");
+		btnCancelar.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		btnCancelar.setBounds(434, 312, 137, 30);
+		add(btnCancelar);
 		
 		btnDesapuntar = new JButton("Desapuntarse");
 		btnDesapuntar.setFont(new Font("Tahoma", Font.PLAIN, 14));
@@ -163,8 +173,20 @@ public class PMiPerfil extends JPanel {
 		
 		btnTerminado = new JButton("Ya he terminado");
 		btnTerminado.setFont(new Font("Tahoma", Font.PLAIN, 14));
-		btnTerminado.setBounds(321, 312, 137, 30);
+		btnTerminado.setBounds(286, 312, 137, 30);
 		add(btnTerminado);
+		
+		JLabel lblConfirm = new JLabel("Confirmar contraseña:");
+		lblConfirm.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		lblConfirm.setBounds(327, 151, 147, 18);
+		add(lblConfirm);
+		
+		pwdConfirm = new JPasswordField();
+		pwdConfirm.setFont(new Font("Tahoma", Font.PLAIN, 14));
+		pwdConfirm.setBounds(468, 148, 160, 25);
+		add(pwdConfirm);
+		
+		configurarTablas();
 	}
 
 	public void mostrarMensaje(String mensaje, String titulo, int icono) {
@@ -172,9 +194,133 @@ public class PMiPerfil extends JPanel {
 	}
 	
 	public void setListener(PolideportivoListener listener) {
-		btnCancelarR.addActionListener(listener);
+		btnCancelar.addActionListener(listener);
 		btnDesapuntar.addActionListener(listener);
 		btnModificar.addActionListener(listener);
 		btnTerminado.addActionListener(listener);
+	}
+
+	public String obtenerPwd() {
+		String pwd1 = pwdModPwd.getText();
+		String pwd2 = pwdConfirm.getText();
+		
+		if(pwd1.length() < 9) {
+			pwd1 = null;
+			mostrarMensaje("La contraseña debe tener mínimo 9 caracteres", "Error de datos", JOptionPane.ERROR_MESSAGE);
+		}else if(pwd1.isEmpty() ) {
+			pwd1 = null;
+			mostrarMensaje("Debe introducir la contraseña", "Error de datos", JOptionPane.ERROR_MESSAGE);
+		}else if(pwd2.isEmpty()) {
+			pwd1 = null;
+			mostrarMensaje("Debe introducir la confirmación de contraseña", "Error de datos", JOptionPane.ERROR_MESSAGE);
+		}else if(!pwd1.equals(pwd2)) {
+			pwd1 = null;
+			mostrarMensaje("Las contraseñas no coinciden", "Error de datos", JOptionPane.ERROR_MESSAGE);
+		}
+		return pwd1;
+	}
+
+	public void cargarDatos(Usuario usuario) {
+		txtNombre.setText(usuario.getNombre());
+		txtApellidos.setText(usuario.getApellidos());
+		txtAnio.setText("" + usuario.getAnio_nac());
+		txtDni.setText(usuario.getDni());
+		txtEmail.setText(usuario.getEmail());
+		txtTlf.setText(usuario.getTelefono());
+	}
+	
+	private void configurarTablas() {
+		dtmClases = new DefaultTableModel() {
+			
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+			
+		};
+		
+		dtmClases.addColumn("NOMBRE");
+		dtmClases.addColumn("DEPORTE");
+		dtmClases.addColumn("DÍAS");
+		dtmClases.addColumn("HORAS");
+		
+		tblClases.setModel(dtmClases);	
+		
+		dtmReservas = new DefaultTableModel() {
+			
+			@Override
+			public boolean isCellEditable(int row, int column) {
+				return false;
+			}
+			
+		};
+		
+		dtmReservas.addColumn("NOMBRE");
+		dtmReservas.addColumn("DEPORTE");
+		dtmReservas.addColumn("FECHA");
+		dtmReservas.addColumn("HORAS");
+		
+		tblReservas.setModel(dtmReservas);
+	}
+
+	public void rellenarTablaClases(ArrayList<Clase> listaClasesUsuario) {
+		dtmClases.setRowCount(0);
+		
+		Object[] fila = new Object[4];
+		
+		for (Clase clase : listaClasesUsuario) {
+			fila[0] = clase.getNombre();
+			
+			fila[1] = clase.getDeporte();
+			
+			fila[2] = clase.getDia1() + " y " + clase.getDia2();
+			
+			fila[3] = clase.getHoraDesde() + " a " + clase.getHoraHasta();
+			
+			dtmClases.addRow(fila);
+		}
+	}
+
+	public void rellenarTablaPistas(ArrayList<Pista> listaPistasUsuario) {
+		dtmReservas.setRowCount(0);
+		
+		Object[] fila = new Object[4];
+		
+		for (Pista pista : listaPistasUsuario) {
+			
+			fila[0] = pista.getNombre();
+			
+			fila[1] = pista.getDeporte();
+			
+			fila[2] = pista.getFecha();
+			
+			fila[3] = pista.getHoraDesde() + " a " + pista.getHoraHasta();
+			
+			dtmReservas.addRow(fila);
+		}
+	}
+
+	public int obtenerElementoSeleccionadoClases() {
+		return tblClases.getSelectedRow();
+	}
+
+	public String getNombreFilaClases(int pos) {
+		return (String) dtmClases.getValueAt(pos, 0);
+	}
+
+	public void eliminarFilaClases(int pos) {
+		dtmClases.removeRow(pos);	
+	}
+
+	public int obtenerElementoSeleccionadoReservas() {
+		return tblReservas.getSelectedRow();
+	}
+
+	public String getNombreFilaReservas(int pos) {
+		return (String) dtmReservas.getValueAt(pos, 0);
+	}
+
+	public void eliminarFilaReservas(int pos) {
+		dtmReservas.removeRow(pos);
 	}
 }

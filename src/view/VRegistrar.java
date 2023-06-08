@@ -198,6 +198,8 @@ public class VRegistrar extends JFrame {
 							mostrarMensaje("Debe introducir la confirmación de contraseña", "Error de datos", JOptionPane.ERROR_MESSAGE);
 						}else if (!pwd.equals(pwd2)) {
 							mostrarMensaje("Las contraseñas no coinciden", "Error de datos", JOptionPane.ERROR_MESSAGE);
+						}else if(pwd.length() < 9) {
+							mostrarMensaje("La contraseña debe tener mínimo 9 caracteres", "Error de datos", JOptionPane.ERROR_MESSAGE);
 						}else {
 							usuario = new Usuario(dni, nombre, apellidos, anio, tlf, email, pwd);
 						}

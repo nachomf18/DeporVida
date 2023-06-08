@@ -30,6 +30,8 @@ public class PolideportivoPersistencia {
 	static final String TABLA_PISTA = "PISTA";
 	static final String TABLA_USUARIO_PISTA = "USUARIO_PISTA";
 	static final String COL_FECHA = "FECHA";
+	static final String COL_NOMBRE_CLASE = "NOMBRE_CLASE";
+	static final String COL_NOMBRE_PISTA = "NOMBRE_PISTA";
 	
 	private AccesoDB acceso;
 
@@ -37,7 +39,7 @@ public class PolideportivoPersistencia {
 		acceso = new AccesoDB();
 	}
 	
-	public String verficarUsuario(Usuario usuario) {
+	public String verificarUsuario(Usuario usuario) {
 		String query = "SELECT " + COL_DNI + ", " + COL_PWD + " FROM " + TABLA_USUARIO 
 				+ " WHERE " + COL_DNI + " = ?";
 		
@@ -174,7 +176,7 @@ public class PolideportivoPersistencia {
 	}
 
 	public int addUsuarioClase(String nombre, String dni) {
-		String query = "INSERT INTO " + TABLA_USUARIO_CLASE + "(" + COL_DNI + ", " + COL_NOMBRE + ") VALUES (?, ?)";
+		String query = "INSERT INTO " + TABLA_USUARIO_CLASE + "(" + COL_DNI + ", " + COL_NOMBRE_CLASE + ") VALUES (?, ?)";
 		
 		Connection con = null;
 		PreparedStatement stmt = null;
@@ -248,7 +250,7 @@ public class PolideportivoPersistencia {
 	}
 
 	public int addUsuarioPista(String nombre, String dni, String fecha, String hora) {
-		String query = "INSERT INTO " + TABLA_USUARIO_PISTA + "(" + COL_DNI + ", " + COL_NOMBRE + ", " + COL_FECHA 
+		String query = "INSERT INTO " + TABLA_USUARIO_PISTA + "(" + COL_DNI + ", " + COL_NOMBRE_PISTA + ", " + COL_FECHA 
 				+ ", " + COL_HORA_DESDE + ", " + COL_HORA_HASTA + ") VALUES (?, ?, ?, ?, ?)";
 		
 		Connection con = null;
@@ -277,9 +279,9 @@ public class PolideportivoPersistencia {
 	}
 
 	public String comprobarReserva(String nombre, String fecha, String hora) {
-		String query = "SELECT " + COL_NOMBRE+ ", " + COL_FECHA + ", " + COL_HORA_DESDE + ", " + COL_HORA_HASTA 
+		String query = "SELECT " + COL_NOMBRE_PISTA + ", " + COL_FECHA + ", " + COL_HORA_DESDE + ", " + COL_HORA_HASTA 
 				+ " FROM " + TABLA_USUARIO_PISTA 
-				+ " WHERE " + COL_NOMBRE + " = ? AND " + COL_FECHA  + " = ? AND " + COL_HORA_DESDE + " = ? AND " 
+				+ " WHERE " + COL_NOMBRE_PISTA + " = ? AND " + COL_FECHA  + " = ? AND " + COL_HORA_DESDE + " = ? AND " 
 				+ COL_HORA_HASTA + " = ?";
 		
 		String resultado = "";
@@ -326,5 +328,216 @@ public class PolideportivoPersistencia {
 		}
 		
 		return resultado;
+	}
+
+	public int modPassword(String newPwd, String dni) {
+		String query = "UPDATE " + TABLA_USUARIO + " SET " + COL_PWD + " = ? WHERE " + COL_DNI + " = ?";
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		int res = 0;
+		
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			stmt.setString(1, newPwd);
+			stmt.setString(2, dni);
+			
+			res = stmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			res = -1;
+		}
+		
+		return res;
+	}
+
+	public ArrayList<Clase> selectUsuarioClases(String dni) {
+		ArrayList<Clase> listaClasesUsuario = new ArrayList<>();
+		
+		String query = "SELECT C." + COL_NOMBRE + ", C." + COL_DESCRIPCION + ", C." 
+		+ COL_DEPORTE + ", C." + COL_DIA1 + ", C." + COL_DIA2 + ", C." + COL_HORA_DESDE + ", C." + COL_HORA_HASTA 
+		+ " FROM " + TABLA_CLASE + " C, " +  TABLA_USUARIO_CLASE + " UC WHERE UC." + COL_DNI + " = ? AND UC." 
+		+ COL_NOMBRE_CLASE + " = C." + COL_NOMBRE;
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rslt = null;
+
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			stmt.setString(1, dni);
+					
+			rslt = stmt.executeQuery();
+			
+			while(rslt.next()) {
+				listaClasesUsuario.add(new Clase(rslt.getString(COL_NOMBRE),  rslt.getString(COL_DESCRIPCION), 
+						rslt.getString(COL_DEPORTE), rslt.getString(COL_DIA1), rslt.getString(COL_DIA2), 
+						rslt.getString(COL_HORA_DESDE), rslt.getString(COL_HORA_HASTA)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				
+				if(rslt != null) {
+					rslt.close();
+				}
+				
+				if (stmt != null) {
+					stmt.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return listaClasesUsuario;
+	}
+
+	public Usuario selectDatosUsuario(String dni) {
+		Usuario datosUsuario = null;
+		
+		String query = "SELECT " + COL_DNI + ", " + COL_NOMBRE + ", " + COL_APELLIDOS 
+				+ ", " + COL_ANIO + ", " + COL_TELEFONO + ", " + COL_EMAIL + ", " + COL_PWD + " FROM "
+				+ TABLA_USUARIO + " WHERE " + COL_DNI + " = ?";
+				
+				Connection con = null;
+				PreparedStatement stmt = null;
+				ResultSet rslt = null;
+
+				try {
+					con = acceso.getConexion();
+					
+					stmt = con.prepareStatement(query);
+					
+					stmt.setString(1, dni);
+							
+					rslt = stmt.executeQuery();
+					
+					if(rslt.next()) {
+						datosUsuario = new Usuario(rslt.getString(COL_DNI),  rslt.getString(COL_NOMBRE), 
+								rslt.getString(COL_APELLIDOS), rslt.getInt(COL_ANIO), rslt.getString(COL_TELEFONO), 
+								rslt.getString(COL_EMAIL), rslt.getString(COL_PWD));
+					}
+				} catch (Exception e) {
+					e.printStackTrace();
+				}finally {
+					try {
+						if (con != null) {
+							con.close();
+						}
+						
+						if(rslt != null) {
+							rslt.close();
+						}
+						
+						if (stmt != null) {
+							stmt.close();
+						}
+					} catch (SQLException e) {
+						e.printStackTrace();
+					}
+				}
+				return datosUsuario;
+	}
+
+	public ArrayList<Pista> selectUsuarioPista(String dni) {
+		ArrayList<Pista> listaPistasUsuario = new ArrayList<>();
+		
+		String query = "SELECT P." + COL_NOMBRE + ", P." + COL_DEPORTE + ", UP." 
+		+ COL_FECHA + ", UP." + COL_HORA_DESDE + ", UP." + COL_HORA_HASTA
+		+ " FROM " + TABLA_PISTA + " P, " +  TABLA_USUARIO_PISTA + " UP WHERE UP." + COL_DNI + " = ? AND UP." 
+		+ COL_NOMBRE_PISTA + " = P." + COL_NOMBRE;
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		ResultSet rslt = null;
+
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			
+			stmt.setString(1, dni);
+					
+			rslt = stmt.executeQuery();
+			
+			while(rslt.next()) {
+				listaPistasUsuario.add(new Pista(rslt.getString(COL_NOMBRE), rslt.getString(COL_DEPORTE), 
+						rslt.getString(COL_FECHA), rslt.getString(COL_HORA_DESDE), rslt.getString(COL_HORA_HASTA)));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}finally {
+			try {
+				if (con != null) {
+					con.close();
+				}
+				
+				if(rslt != null) {
+					rslt.close();
+				}
+				
+				if (stmt != null) {
+					stmt.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return listaPistasUsuario;
+	}
+
+	public int eliminarClase(String nombre) {
+		String query = "DELETE FROM " + TABLA_USUARIO_CLASE + " WHERE " + COL_NOMBRE_CLASE + " = ?";
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		int res = 0;
+		
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			stmt.setString(1, nombre);
+			
+			res = stmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+			res = -1;
+		}
+		
+		return res;
+	}
+
+	public int eliminarReserva(String nombre) {
+		String query = "DELETE FROM " + TABLA_USUARIO_PISTA + " WHERE " + COL_NOMBRE_PISTA + " = ?";
+		
+		Connection con = null;
+		PreparedStatement stmt = null;
+		int res = 0;
+		
+		try {
+			con = acceso.getConexion();
+			
+			stmt = con.prepareStatement(query);
+			stmt.setString(1, nombre);
+			stmt.executeUpdate();
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return res;
 	}
 }

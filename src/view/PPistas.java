@@ -187,7 +187,7 @@ public class PPistas extends JPanel {
 	
 	public void rellenarModelFecha() {
 		String[] fechas = new String[30];
-		LocalDate fechaActual = LocalDate.now();
+		LocalDate fechaActual = LocalDate.now().plusDays(1);
 		DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 		
 		for (int i = 0; i < fechas.length; i++) {
