@@ -4,6 +4,6 @@ Equipo:
 - Martín Londres
 - Alberto García
 - Álvaro Blazquez
-- Nacho García
+- Ignacio Martín
 
 Desarrollado por Inspiring Development
