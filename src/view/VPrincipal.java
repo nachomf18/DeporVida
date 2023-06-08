@@ -19,7 +19,6 @@ public class VPrincipal extends JFrame {
 	public static final String MNTM_PERFIL = "Mi Perfil";
 	public static final String MNTM_PISTAS = "Reservar una pista";
 	public static final String MNTM_SALIR = "Salir";
-	public static final String MNTM_INFO = "Más información";
 	
 	public static final int ANCHO = 700;
 	public static final int ALTO = 550;
@@ -27,7 +26,6 @@ public class VPrincipal extends JFrame {
 	private JMenuItem mntmClases;
 	private JMenuItem mntmReservar;
 	private JMenuItem mntmPerfil;
-	private JMenuItem mntmInfo;
 	private JMenuItem mntmSalir;
 	
 	public VPrincipal() {
@@ -58,9 +56,6 @@ public class VPrincipal extends JFrame {
 		mntmPerfil = new JMenuItem(MNTM_PERFIL);
 		mnOpciones.add(mntmPerfil);
 		
-		mntmInfo = new JMenuItem(MNTM_INFO);
-		menuBar.add(mntmInfo);
-		
 		mntmSalir = new JMenuItem(MNTM_SALIR);
 		menuBar.add(mntmSalir);
 		
@@ -89,7 +84,6 @@ public class VPrincipal extends JFrame {
 	
 	public void setListener(PolideportivoListener listener) {
 		mntmClases.addActionListener(listener);
-		mntmInfo.addActionListener(listener);
 		mntmPerfil.addActionListener(listener);
 		mntmReservar.addActionListener(listener);
 		mntmSalir.addActionListener(listener);
